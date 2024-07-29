@@ -1,13 +1,15 @@
 <template>
-  <div class="container mx-auto relative">
+  <div class="container mx-auto">
     <!-- Header -->
-    <header class="py-4 border-b bg-white mx-auto max-w-7xl relative z-10">
+    <header class="py-4 border-b bg-white mx-auto max-w-7xl">
       <div class="flex justify-between items-center">
         <h1 class="text-3xl font-semibold text-gray-800">Hijja</h1>
+        <!-- Hamburger Menu for Mobile -->
         <button @click="toggleMobileMenu" class="text-blue-500 lg:hidden focus:outline-none">
           <span class="material-icons">menu</span>
         </button>
         <nav :class="{ block: showMobileMenu, hidden: !showMobileMenu, 'lg:block': true }">
+          <!-- Search Product -->
           <ul class="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:space-x-4 items-center">
             <li>
               <input
@@ -65,7 +67,7 @@
               <!-- Shopping Cart Dropdown -->
               <div
                 v-if="showCart"
-                class="absolute top-full right-0 bg-white border border-gray-200 mt-2 rounded-lg shadow-lg z-10 sm:w-40 md:w-80"
+                class="absolute top-full right-0 bg-white border border-gray-200 mt-2 rounded-lg shadow-lg z-10 w-80"
               >
                 <div v-if="cart.length > 0" class="p-4">
                   <p class="text-lg font-semibold mb-2">Shopping Cart</p>
@@ -79,7 +81,7 @@
                         <span>{{ item.name }}</span>
                         <br />
                         <span class="text-gray-500 text-sm"
-                          >Variant: {{ item.selectedVariant.value }}</span
+                          >Variant: {{ item.selectedVariant }}</span
                         >
                         <br />
                         <span class="text-gray-500 text-sm">Price: {{ item.price }}</span>
@@ -98,11 +100,6 @@
                       </button>
                     </li>
                   </ul>
-                  <router-link
-                    to="/checkout"
-                    class="block w-full bg-green-500 text-white py-2 px-4 rounded-lg mt-4 text-center"
-                    >Checkout</router-link
-                  >
                   <button
                     @click="toggleCart"
                     class="block w-full bg-blue-500 text-white py-2 px-4 rounded-lg mt-4"
@@ -120,161 +117,124 @@
       </div>
     </header>
 
-    <!-- Carousel -->
-    <section class="max-w-full mx-auto mt-5 z-0">
-      <Carousel />
-    </section>
-
-    <!-- Dropdown Content -->
-    <div
-      v-if="showDropdown"
-      class="absolute right-0 mt-2 py-2 w-40 bg-white rounded-lg shadow-lg z-20"
-    >
-      <!-- Dropdown items -->
-    </div>
-
-    <!-- Categories -->
-    <section class="max-w-6xl mx-auto mt-11">
-      <Categorie />
-    </section>
-
-    <!-- Notification -->
-    <div v-if="showNotification" class="notification">
-      <p>Please select a variant before adding to cart</p>
-    </div>
-
-    <!-- Products -->
-    <section class="max-w-6xl mx-auto mt-11">
-      <h2 class="text-2xl font-semibold mb-4">Products</h2>
-      <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-6 mx-3">
-        <div
-          v-for="product in filteredProducts"
-          :key="product.id"
-          class="bg-white rounded-lg shadow-md overflow-hidden"
-        >
-          <img
-            :src="product.photo"
-            :alt="product.name"
-            class="w-full h-60 object-cover object-center"
-            @click="goToDetail(product.id)"
-          />
-          <div class="p-4">
-            <h3 class="text-xl font-semibold mb-2">{{ product.name }}</h3>
-            <p class="text-gray-600 mb-2">Price: {{ product.price }}</p>
-            <p class="text-gray-600 mb-2">Stock: {{ product.stock }}</p>
+    <main class="py-8">
+      <!-- Product Details -->
+      <section class="max-w-6xl mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Product Image -->
+          <div>
+            <img
+              :src="product.photo"
+              :alt="product.name"
+              class="w-full h-96 object-cover object-center rounded-lg shadow-md"
+            />
+          </div>
+          <!-- Product Info -->
+          <div>
+            <h2 class="text-3xl font-semibold mb-2">{{ product.name }}</h2>
+            <p class="text-xl text-gray-600 mb-4">Price: {{ product.price }}</p>
+            <p class="text-lg text-gray-600 mb-4">Stock: {{ product.stock }}</p>
             <!-- Variant Dropdown -->
             <div class="mt-4">
               <label for="variants" class="block text-sm font-medium text-gray-700"
                 >Variants:</label
               >
               <select
-                v-model="product.selectedVariant"
+                v-model="selectedVariant"
                 id="variants"
                 name="variants"
                 class="block w-full bg-white border border-gray-300 text-gray-700 py-2 px-3 rounded-md leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
               >
-                <option disabled value="-" selected>Select a variant</option>
-                <option v-for="variant in product.varian" :key="variant.id" :value="variant">
-                  {{ variant.value }}
-                </option>
+                <option disabled value="" selected>Select a variant</option>
+                <option>{{ product.varian }}</option>
               </select>
             </div>
             <!-- Add to Cart Button -->
             <button
-              @click="addToCart(product)"
+              @click="addToCart"
               class="mt-4 font-bold py-2 px-4 rounded-md w-full"
               :class="{
-                'bg-blue-500 hover:bg-blue-700 text-white': product.selectedVariant,
-                'bg-gray-500 text-gray-300 cursor-not-allowed': !product.selectedVariant
+                'bg-blue-500 hover:bg-blue-700 text-white': selectedVariant,
+                'bg-gray-500 text-gray-300 cursor-not-allowed': !selectedVariant
               }"
-              :disabled="!product.selectedVariant"
+              :disabled="!selectedVariant"
             >
-              <span class="material-icons">shopping_cart</span>
+              Add to Cart
             </button>
+            <!-- Product Description -->
+            <div class="mt-6">
+              <h3 class="text-2xl font-semibold mb-2">Description</h3>
+              <p class="text-gray-700">{{ product.description }}</p>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </main>
 
-    <!-- Footer -->
-    <section class="py-4 border-b bg-white mx-auto max-w-7xl">
+    <footer class="py-4 border-t bg-white mx-auto max-w-7xl">
       <Footer />
-    </section>
+    </footer>
   </div>
 </template>
 
 <script>
 import axios from 'axios'
 import Swal from 'sweetalert2'
-
-import Carousel from '@/components/Carousel.vue'
 import Footer from '@/components/Footer.vue'
-import Categorie from '@/components/Categorie.vue'
 
 export default {
   data() {
     return {
-      products: [],
-      filteredProducts: [],
+      product: {},
+      selectedVariant: null,
       cart: JSON.parse(localStorage.getItem('cart')) || [],
       showCart: false,
-      searchQuery: '',
-      selectedVariant: null,
       showDropdown: false,
       showMobileMenu: false
     }
   },
   components: {
-    Carousel,
-    Footer,
-    Categorie
+    Footer
   },
   methods: {
-    async fetchData() {
+    async fetchProduct() {
       try {
-        const response = await axios.get('https://sistemtoko.com/public/demo/product')
-        this.products = response.data.aaData.map((product) => ({
-          id: product.id,
-          name: product.name,
-          price: product.price,
-          photo: product.photo, // Change 'image' to 'photo'
-          varian: product.varian,
-          stock: product.stock,
-          selectedVariant: null // Initialize selectedVariant
-        }))
-        this.filteredProducts = this.products
-      } catch (error) {
-        console.error('Error fetching products:', error)
-      }
-    },
-    searchProducts() {
-      this.filteredProducts = this.products.filter((product) =>
-        product.name.toLowerCase().includes(this.searchQuery.toLowerCase())
-      )
-    },
-    addToCart(product) {
-      if (!this.selectedVariant) {
-        Swal.fire({
-          icon: 'success',
-          title: 'Success!',
-          text: 'Produk berhasil dimasukan ke keranjang',
-          confirmButtonText: 'OK'
-        })
-        const existingCartItem = this.cart.find(
-          (item) =>
-            item.id === product.id && item.selectedVariant.value === product.selectedVariant.value
-        )
-        if (existingCartItem) {
-          existingCartItem.quantity++
-        } else {
-          const cartItem = {
-            ...product,
-            quantity: 1
-          }
-          this.cart.push(cartItem)
+        const productId = this.$route.params.id
+        const response = await axios.get(`https://sistemtoko.com/public/demo/single/${productId}`)
+        this.product = {
+          id: response.data.id,
+          name: response.data.product_name,
+          price: response.data.product_buy_price,
+          photo: 'https://sistemtoko.com/img/user/demo/product/' + response.data.product_img,
+          varian: response.data.varian_keyword_value,
+          stock: response.data.product_qty_stock,
+          description: response.data.user_description
         }
-        localStorage.setItem('cart', JSON.stringify(this.cart))
+      } catch (error) {
+        console.error('Error fetching product:', error)
       }
+    },
+    addToCart() {
+      const existingCartItem = this.cart.find(
+        (item) => item.id === this.product.id && item.selectedVariant === this.selectedVariant
+      )
+      if (existingCartItem) {
+        existingCartItem.quantity++
+      } else {
+        const cartItem = {
+          ...this.product,
+          selectedVariant: this.selectedVariant,
+          quantity: 1
+        }
+        this.cart.push(cartItem)
+      }
+      Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: 'Produk berhasil dimasukan ke keranjang',
+        confirmButtonText: 'OK'
+      })
+      localStorage.setItem('cart', JSON.stringify(this.cart))
     },
     removeFromCart(index) {
       this.cart.splice(index, 1)
@@ -295,9 +255,6 @@ export default {
     toggleCart() {
       this.showCart = !this.showCart
     },
-    goToDetail(productId) {
-      this.$router.push(`/DetailProduct/${productId}`)
-    },
     toggleDropdown() {
       this.showDropdown = !this.showDropdown
     },
@@ -309,7 +266,7 @@ export default {
     }
   },
   mounted() {
-    this.fetchData()
+    this.fetchProduct()
   }
 }
 </script>
